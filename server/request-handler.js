@@ -17,10 +17,8 @@ var results = [];
 var requestHandler = function(request, response) {
   const { method, url} = request;
   
-  
-    // The outgoing status.
+  // The outgoing status.
   var statusCode = 200;
-  
   
   // Request and Response come from node's http module.
   //clear
@@ -38,6 +36,12 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
+  var defaultCorsHeaders = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, accept',
+    'access-control-max-age': 10 // Seconds.
+  };
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -51,47 +55,52 @@ var requestHandler = function(request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
-    
   
   if (url === '/classes/messages') {
-    console.log('classes and messages');
     if (method === 'GET') {
-      response.writeHead(200);
+      response.writeHead(200, headers);
       response.end(JSON.stringify({results: results}));
-    }
-    else if (method === 'POST') {
+    } else if (method === 'POST') {
       let body = [];
       statusCode = 201;
       response.writeHead(statusCode, headers);
       request.on('data', (chunk) => {
         body.push(chunk);
-        
       }).on('end', function() {
         body = Buffer.concat(body).toString();
         results.push(JSON.parse(body));
         response.writeHead(201, headers);
         response.end(JSON.stringify({results: results}));
-      })
-    } else if (method === 'OPTIONS') {
-      response.writeHead(200, headers);
-      console.log([defaultCorsHeaders['access-control-allow-methods']]);
-      response.end(JSON.stringify([defaultCorsHeaders['access-control-allow-methods']]));
+      });
+    } else if (method === 'DELETE') {
+      response.writeHead(204, headers);
+      response.end(JSON.stringify({results: results}));
+    } else if (method === 'PUT') {
+      response.writeHead(405, headers);
+      response.end(JSON.stringify({results: results}));
     }
+  } else if (url === '/' && method === 'OPTIONS') {
+    response.writeHead(200, headers);
+    console.log([defaultCorsHeaders['access-control-allow-methods']]);
+    response.end(JSON.stringify([defaultCorsHeaders['access-control-allow-methods']]));
   } else {
-    response.writeHead(404);
+    response.writeHead(404, headers);
     response.end();
   }
-  
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-  // response.write('test')
-  
 };
+
+exports.requestHandler = requestHandler;
+
+// Make sure to always call response.end() - Node may not send
+// anything back to the client until you do. The string you pass to
+// response.end() will be the body of the response - i.e. what shows
+// up in the browser.
+//
+// Calling .end "flushes" the response's internal buffer, forcing
+// node to actually send all the data over to the client.
+// response.write('test')
+  
+
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
@@ -102,11 +111,5 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
 
-exports.requestHandler = requestHandler;  
+

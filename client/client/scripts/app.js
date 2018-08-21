@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:3000/',
+  server: 'http://127.0.0.1:3000',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -59,10 +59,11 @@ var app = {
 
   fetch: function(animate) {
     $.ajax({
-      url: app.server,
+      url: `${app.server}/classes/messages`,
       type: 'GET',
-      data: { order: '-createdAt' },
+      // data: { order: '-createdAt' },
       success: function(data) {
+        console.log('success!', data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 

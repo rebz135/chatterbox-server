@@ -115,5 +115,70 @@ describe('Node Server Request Listener Function', function() {
         expect(res._responseCode).to.equal(404);
       });
   });
+  
+  // Our tests ////////////////////////////////////////////////
+  it('Should accept options requests to /classes/messages', function() {
+    var req = new stubs.request('/', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    expect(res._responseCode).to.equal(200);
+    expect(res._ended).to.equal(true);
+  });
+  
+  it('Should respond with possible access control methods', function() {
+    var req = new stubs.request('/', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+
+    // Now if we request the log for that room the message we posted should be there:
+ 
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var options = JSON.parse(res._data)[0];
+    expect(options).to.equal('GET, POST, PUT, DELETE, OPTIONS');
+    expect(res._ended).to.equal(true);
+  });
+  
+  it('Should 404 when accessing a nonexistent url', function() {
+    var req = new stubs.request('/testing', 'GET');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    
+    expect(res._responseCode).to.equal(404);
+  });
+  
+  it('Should 404 when using a non-approved method', function() {
+    var req = new stubs.request('', 'TEST');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    
+    expect(res._responseCode).to.equal(404);
+  });
+  
+  it('Should accept delete requests to /classes/messages', function() {
+    var req = new stubs.request('/classes/messages', 'DELETE');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    expect(res._responseCode).to.equal(204);
+    expect(res._ended).to.equal(true);
+  });
+  
+  it('Should accept put requests to /classes/messages', function() {
+    var req = new stubs.request('/classes/messages', 'PUT');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    expect(res._responseCode).to.equal(405);
+    expect(res._ended).to.equal(true);
+  });
+
 
 });
