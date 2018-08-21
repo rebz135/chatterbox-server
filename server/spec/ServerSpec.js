@@ -118,7 +118,7 @@ describe('Node Server Request Listener Function', function() {
   
   // Our tests ////////////////////////////////////////////////
   it('Should accept options requests to /classes/messages', function() {
-    var req = new stubs.request('/', 'OPTIONS');
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
@@ -127,7 +127,7 @@ describe('Node Server Request Listener Function', function() {
   });
   
   it('Should respond with possible access control methods', function() {
-    var req = new stubs.request('/', 'OPTIONS');
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
     var res = new stubs.response();
 
     handler.requestHandler(req, res);

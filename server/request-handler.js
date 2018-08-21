@@ -68,6 +68,7 @@ var requestHandler = function(request, response) {
         body.push(chunk);
       }).on('end', function() {
         body = Buffer.concat(body).toString();
+        console.log(JSON.parse(body));
         results.push(JSON.parse(body));
         response.writeHead(201, headers);
         response.end(JSON.stringify({results: results}));
@@ -78,11 +79,11 @@ var requestHandler = function(request, response) {
     } else if (method === 'PUT') {
       response.writeHead(405, headers);
       response.end(JSON.stringify({results: results}));
+    } else if (method === 'OPTIONS') {
+      response.writeHead(200, headers);
+      console.log([defaultCorsHeaders['access-control-allow-methods']]);
+      response.end(JSON.stringify([defaultCorsHeaders['access-control-allow-methods']]));
     }
-  } else if (url === '/' && method === 'OPTIONS') {
-    response.writeHead(200, headers);
-    console.log([defaultCorsHeaders['access-control-allow-methods']]);
-    response.end(JSON.stringify([defaultCorsHeaders['access-control-allow-methods']]));
   } else {
     response.writeHead(404, headers);
     response.end();
